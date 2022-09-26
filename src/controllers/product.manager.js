@@ -1,13 +1,29 @@
-let products = []
+const fs = require('fs')
+
+// Trabajando con persistencia en archivos
+const pathToFile = '../data/products.json'
 
 class ProductManager {
     getAll = () => {
-        return products
+        try {
+            
+        } catch (err) {
+            return {
+                status: "error", 
+                message: err.message
+            }
+        }
     }
 
     getById  = (id) => {
-        id = parseInt(id)
-        return products.find(item => item.id === id)
+        try {
+            
+        } catch (err) {
+            return {
+                status: "error", 
+                message: err.message
+            }
+        }
     }
 
     create = (product) => {
@@ -24,24 +40,25 @@ class ProductManager {
     }
 
     update = (id, product) => {
-        id = parseInt(id)
-        let newProducts = products.map(item => {
-            if (item.id === id) {
-                return {
-                    id,
-                    ...product
-                }
-            } else return item
-        })
-        products = newProducts
-        return this.getById(id)
+        try {
+            
+        } catch (err) {
+            return {
+                status: "error",
+                message: err.message
+            }
+        }
     }
 
     delete = (id) => {
-        id = parseInt(id)
-        let newProducts = products.filter(item => item.id !== id)
-        products = newProducts
-        return products
+        try {
+            
+        } catch (err) {
+            return {
+                status: "error",
+                message: err.message
+            }
+        }
     }
 }
 

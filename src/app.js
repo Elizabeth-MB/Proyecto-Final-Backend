@@ -1,5 +1,8 @@
 const express = require('express')
 
+// Usamos el router de product
+const productRouter = require('./router/product.router')
+
 const app = express()
 
 const PORT = process.env.PORT || 8080

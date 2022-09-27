@@ -1,7 +1,6 @@
-const express = require('express')
+import express from 'express'
 
-// Usamos el router de product
-const productRouter = require('./router/product.router')
+import productRouter from './router/product.router'
 
 const app = express()
 
@@ -12,4 +11,4 @@ const server = app.listen(PORT, () => console.log(`Server up on port ${PORT}`))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
-app.use('/products', productRouter)
+app.use('/api/products', productRouter)

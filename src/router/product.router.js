@@ -1,4 +1,5 @@
-const express = require('express')
+import express from 'express'
+// const express = require('express')
 const router = express.Router()
 
 // GET: '/:id?' - Permite listar todos los productos disponibles o un producto por su id (Disponible para usuarios y administradores)

@@ -1,4 +1,6 @@
-const express = require('express')
+import express from 'express'
+
+// const express = require('express')
 const router = express.Router()
 
 // POST: '/' Crea un carrito y devuelve su id

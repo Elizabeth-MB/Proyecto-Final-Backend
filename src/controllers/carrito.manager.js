@@ -1,4 +1,5 @@
-const fs = require('fs')
+import fs from 'fs'
+// const fs = require('fs')
 
 // Trabajando con persistencia en archivos
 const pathToFile = '../data/products.json'
@@ -122,4 +123,5 @@ class CarritoManager {
     
 }
 
-module.exports = ProductManager
+export default CarritoManager
+// module.exports = ProductManager

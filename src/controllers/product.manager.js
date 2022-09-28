@@ -5,6 +5,7 @@ import { fs } from 'fs'
 const pathToFile = '../data/products.json'
 
 class ProductManager {
+    
     // Permite listar todos los productos disponibles (Disponible para usuarios y administradores)
     getAll = async () => {
         let products = []

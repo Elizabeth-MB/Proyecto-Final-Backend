@@ -4,6 +4,7 @@ const fs = require('fs')
 const pathToFile = '../data/products.json'
 
 class ProductManager {
+    // Permite listar todos los productos disponibles (Disponible para usuarios y administradores)
     getAll = async () => {
         let products = []
         try {
@@ -20,6 +21,7 @@ class ProductManager {
         }
     }
 
+    // Permite listar un producto por su ID (Disponible para usuarios y administradores)
     getById = async (id) => {
         try {
 
@@ -42,6 +44,7 @@ class ProductManager {
         }
     }
 
+    // POST: '/' - Permite incorporar productos al listado (Disponible para administradores)
     create = async (product) => {
         try {
             if (fs.existsSync(pathToFile)) {
@@ -76,6 +79,7 @@ class ProductManager {
         }
     }
 
+    // PUT: '/:id' - Actualiza un producto por su id (disponible para administradores)
     update = (id, product) => {
         try {
 
@@ -87,6 +91,7 @@ class ProductManager {
         }
     }
 
+    // DELETE: '/:id' - Borra un producto por su id (disponible para administradores)
     delete = async (id) => {
         try {
 

@@ -1,7 +1,7 @@
 const express = require('express')
 
 // const express = require('express')
-const router = express.Router()
+const route = express.Router()
 const CarritoManager = require('../controllers/carrito.manager')
 
 const carritoManager = new CarritoManager('src/data/carritos.json')

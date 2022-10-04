@@ -1,126 +1,136 @@
-import fs from 'fs'
+const fs = require('fs')
 
 // Trabajando con persistencia en archivos
 const pathToFile = '../data/products.json'
 
 class CarritoManager {
-    // Crea un carrito y devuelve su id
-    create = async (product) => {
+    async getCarrito(){
+        if(!fs.existsSync(pathToFile)){
+            throw {error, descripción : 'El archivo carrito no existe' }
+        }
         try {
-            if (fs.existsSync(pathToFile)) {
-    
-                let data = await fs.promises.readFile(pathToFile, "utf-8");
-                let products = JSON.parse(data);
-                let id = products[products.length - 1].id + 1;
-                product.id = id;
-                products.push(product);
-                await fs.promises.writeFile(
-                    pathToFile,
-                    JSON.stringify(products, null, 2)
-                );
-                return {
-                    status: "success",
-                    message: `Product added with id ${product.id}`,
-                };
-            } else {
-                product.id = 1;
-                // Pasamos el producto como array
-                await fs.promises.writeFile(
-                    pathToFile,
-                    JSON.stringify([product], null, 2)
-                );
-                return {
-                    status: "success",
-                    message: `Product Added with id ${product.id}`,
-                };
-            }
-        } catch (err) {
-            return { status: "error", message: err.message };
+            return JSON.parse(await fs.promises.readFile(pathToFile, 'utf-8'))
+        } 
+        catch {
+            throw { descripción : 'Error al leer el archivo carrito' }
         }
     }
 
-    // Vacía un carrito y lo elimina
-    delete = async (id) => {
+    async getCartProducts(id){
+        const carts = await this.getCarts()
+
+        const cart = carts.find(c => c.id === id)
+        if(cart){
+            return cart.productos
+        }
+
+        throw { error : -4, descripcion : `No existe el carrito de id ${id}` }
+    }
+
+    async createCart(){
+        let carts = []
+        let newCart
+
+        if(fs.existsSync(pathToFile)){
+            carts = await this.getCarts()
+                
+            if(carts.length > 0){
+                newCart = { id : (carts[carts.length - 1].id + 1), timestamp : Date.now(), productos: [] }
+            }
+            else {
+                newCart = { id : 1, timestamp : Date.now(), productos: [] }
+            }
+        }
+        else {
+            newCart = { id : 1, timestamp : Date.now(), productos: [] }
+        }
+
         try {
-
-            if (!id) return { status: "error", message: "id required" };
-            if (fs.existsSync(pathToFile)) {
-                let data = await fs.promises.readFile(pathToFile, "utf-8");
-                let products = JSON.parse(data);
-                let newProducts = products.filter((product) => product.id !== id);
-
-                await fs.promises.writeFile(
-                    pathToFile,
-                    JSON.stringify(newProducts, null, 2)
-                );
-                return {
-                    status: "success",
-                    message: "Product deleted",
-                };
-            } else {
-                return { status: "error", message: err.message };
-            }
-
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+            await fs.promises.writeFile(pathToFile, JSON.stringify([...carts, newCart], null, 2))    
+            return { newCartId : newCart.id }
+        }
+        catch {
+            throw {error : -100, descripcion : 'No se pudo crear el archivo de carritos'}
         }
     }
 
-    getAll = async () => {
-        let products = []
-        try {
-            if (fs.existsSync(pathToFile)) {
-                let data = await fs.promises.readFile(pathToFile, 'utf-8')
-                products = JSON.parse(data)
-            }
-            return products
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+    async deleteCart(id){
+        const carts = await this.getCarts()
+
+        const index = carts.findIndex(c => c.id === id)
+        if(index === -1){
+            throw { error : -4, descripcion : `No existe el carrito de id ${id}` }
+        }
+
+        try{
+            await fs.promises.writeFile(pathToFile, JSON.stringify(carts.filter(c => c.id !== id), null, 2))    
+            return carts[index]
+        }
+        catch {
+            throw {error : -99, descripcion : 'No se pudo modificar el archivo de carritos'}
         }
     }
 
-    getById = async (id) => {
-        try {
+    async addProductToCart(id, p){
+        const carts = await this.getCarts()
+        const index = carts.findIndex(c => c.id === id)
+        const newProd = p
 
-            if (!id) return { status: "error", message: "id required" };
-            if (fs.existsSync(pathToFile)) {
-                let data = await fs.promises.readFile(pathToFile, "utf-8");
-                let products = JSON.parse(data);
-                let product = products.find((product) => product.id === id);
-                if (product) return { status: "success", message: product };
-                return { status: "error", message: "product not found" };
-            } else {
-                return { status: "error", message: err.message };
-            }
+        if(index === -1){
+            throw { error : -4, descripcion : `No existe el carrito de id ${id}` }
+        }
 
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+        const cartProducts = carts[index].productos
+        const cartProdLength = cartProducts.length
+        
+        if(cartProdLength > 0){
+            newProd.id = cartProducts[cartProdLength - 1].id + 1
+        }
+        else {
+            newProd.id = 1
+        }
+        newProd.timestamp = Date.now()
+
+        cartProducts.push(newProd)
+
+        try{
+            await fs.promises.writeFile(pathToFile, JSON.stringify(carts, null, 2))    
+            return newProd
+        }
+        catch {
+            throw {error : -99, descripcion : 'No se pudo modificar el archivo de productos'}
         }
     }
 
+    async deleteProductFromCart(cartId, prodId){
+        const carts = await this.getCarts()
+        const index = carts.findIndex(c => c.id === cartId)
 
-    update = (id, product) => {
-        try {
+        if(index === -1){
+            throw { error : -4, descripcion : `No existe el carrito de id ${cartId}` }
+        }
 
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+        const cartProducts = carts[index].productos
+        const prod = cartProducts.find(p => p.id === prodId)
+
+        if(!prod){
+            throw { error : -4, descripcion : `No existe el producto de id ${prodId}` }
+        }
+
+        carts[index].productos = cartProducts.filter(p => p.id !== prodId)
+
+        try{
+            await fs.promises.writeFile(pathToFile, JSON.stringify(carts, null, 2))    
+            return prod
+        }
+        catch {
+            throw { error : -99, descripcion : 'No se pudo modificar el archivo de carritos' }
         }
     }
+
 
     
 }
 
-export default CarritoManager
-// module.exports = ProductManager
+
+module.exports = CarritoManager

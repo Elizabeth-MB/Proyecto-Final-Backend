@@ -6,15 +6,17 @@ const pathToFile = '../data/products.json'
 class ProductManager {
     
     // Permite listar todos los productos disponibles (Disponible para usuarios y administradores)
-    if(!fs.existsSync(pathToFile)){
-        throw { error : -3, descripcion : 'El archivo de productos no existe' }
-    }
+    async getProducts(){
+        if(!fs.existsSync(pathToFile)){
+            throw {error, descripcion : 'El archivo de productos no existe' }
+        }
 
-    try {
-        return JSON.parse(await fs.promises.readFile(this.path, 'utf-8'))
-    } 
-    catch {
-        throw { error : -98, descripcion : 'Error al leer el archivo de productos' }
+        try {
+            return JSON.parse(await fs.promises.readFile(pathToFile, 'utf-8'))
+        } 
+        catch {
+            throw { error : -98, descripcion : 'Error al leer el archivo de productos' }
+        }
     }
 
     // Permite listar un producto por su ID (Disponible para usuarios y administradores)
@@ -34,7 +36,7 @@ class ProductManager {
         let products = []
         let newProd
 
-        if(fs.existsSync(this.path)){
+        if(fs.existsSync(pathToFile)){
             products = await this.getProducts()
                 
             if(products.length > 0)
@@ -50,7 +52,7 @@ class ProductManager {
         }
 
         try {
-            await fs.promises.writeFile(this.path, JSON.stringify([...products, newProd], null, 2))    
+            await fs.promises.writeFile(pathToFile, JSON.stringify([...products, newProd], null, 2))    
             return newProd
         }
         catch {
@@ -69,7 +71,7 @@ class ProductManager {
 
         products[index] = {...products[index], ...p}
         try{
-            await fs.promises.writeFile(this.path, JSON.stringify([...products], null, 2))    
+            await fs.promises.writeFile(pathToFile, JSON.stringify([...products], null, 2))    
             return products[index]
         }
         catch {
@@ -87,7 +89,7 @@ class ProductManager {
         }
 
         try{
-            await fs.promises.writeFile(this.path, JSON.stringify(products.filter(p => p.id !== id), null, 2))    
+            await fs.promises.writeFile(pathToFile, JSON.stringify(products.filter(p => p.id !== id), null, 2))    
             return products[index]
         }
         catch {

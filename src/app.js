@@ -1,7 +1,7 @@
 const express = require('express')
 
-const productosRoute = require('./router/product.router')
-const carritosRoute = require('./router/carrito.router')
+const productRouter = require('./router/product.router')
+const carritoRouter = require('./router/carrito.router')
 
 const app = express()
 
@@ -16,9 +16,8 @@ app.use('/api/productos', productRouter)
 app.use('/api/carrito', carritoRouter)
 
 app.use((req, res) => {
-    res.status(404).send({
-        error: -2, 
-        descripcion: `Ruta: ${req.baseUrl}${req.url} método ${req.method} no existe`
+    res.status(404).send({ 
+        descripción: `Ruta: ${req.baseUrl}${req.url} método ${req.method} no existe`
     })
 })
 

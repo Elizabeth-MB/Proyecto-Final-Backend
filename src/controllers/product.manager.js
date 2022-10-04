@@ -1,34 +1,35 @@
 const fs = require('fs')
 
-// Trabajando con persistencia en archivos
-const pathToFile = '../data/products.json'
-
 class ProductManager {
+
+    constructor(path){
+        this.path = path
+    }
     
     // Permite listar todos los productos disponibles (Disponible para usuarios y administradores)
-    async getProducts(){
-        if(!fs.existsSync(pathToFile)){
+    async getAllProducts(){
+        if(!fs.existsSync(this.path)){
             throw {error, descripcion : 'El archivo de productos no existe' }
         }
 
         try {
-            return JSON.parse(await fs.promises.readFile(pathToFile, 'utf-8'))
+            return JSON.parse(await fs.promises.readFile(this.path, 'utf-8'))
         } 
         catch {
-            throw { error : -98, descripcion : 'Error al leer el archivo de productos' }
+            throw {descripcion : 'Error al leer el archivo productos' }
         }
     }
 
     // Permite listar un producto por su ID (Disponible para usuarios y administradores)
     async getProduct(id){
-        const products = await this.getProducts()
+        const products = await this.getAllProducts()
 
         const product = products.find(p => p.id === id)
         if(product){
             return product
         }
 
-        throw { error : -4, descripcion : `No existe el producto de id ${id}` }
+        throw {descripcion : `No existe el producto de id ${id}` }
     }
 
     // POST: '/' - Permite incorporar productos al listado (Disponible para administradores)
@@ -36,8 +37,8 @@ class ProductManager {
         let products = []
         let newProd
 
-        if(fs.existsSync(pathToFile)){
-            products = await this.getProducts()
+        if(fs.existsSync(this.path)){
+            products = await this.getAllProducts()
                 
             if(products.length > 0)
             {
@@ -52,48 +53,48 @@ class ProductManager {
         }
 
         try {
-            await fs.promises.writeFile(pathToFile, JSON.stringify([...products, newProd], null, 2))    
+            await fs.promises.writeFile(this.path, JSON.stringify([...products, newProd], null, 2))    
             return newProd
         }
         catch {
-            throw {error : -100, descripcion : 'No se pudo crear el archivo de productos'}
+            throw {descripcion : 'No se pudo crear el archivo productos'}
         }
     }
 
     // PUT: '/:id' - Actualiza un producto por su id (disponible para administradores)
     async updateProduct(id, p){
-        const products = await this.getProducts()
+        const products = await this.getAllProducts()
         const index = products.findIndex(p => p.id === id)
 
         if(index === -1){
-            throw { error : -4, descripcion : `No existe el producto de id ${id}` }
+            throw { descripcion : `No existe el producto de id ${id}` }
         }
 
         products[index] = {...products[index], ...p}
         try{
-            await fs.promises.writeFile(pathToFile, JSON.stringify([...products], null, 2))    
+            await fs.promises.writeFile(this.path, JSON.stringify([...products], null, 2))    
             return products[index]
         }
         catch {
-            throw {error : -99, descripcion : 'No se pudo modificar el archivo de productos'}
+            throw {descripcion : 'No se pudo modificar el archivo productos'}
         }
     }
 
     // DELETE: '/:id' - Borra un producto por su id (disponible para administradores)
     async deleteProduct(id){
-        const products = await this.getProducts()
+        const products = await this.getAllProducts()
 
         const index = products.findIndex(p => p.id === id)
         if(index === -1){
-            throw { error : -4, descripcion : `No existe el producto de id ${id}` }
+            throw {descripcion : `No existe el producto de id ${id}` }
         }
 
         try{
-            await fs.promises.writeFile(pathToFile, JSON.stringify(products.filter(p => p.id !== id), null, 2))    
+            await fs.promises.writeFile(this.path, JSON.stringify(products.filter(p => p.id !== id), null, 2))    
             return products[index]
         }
         catch {
-            throw {error : -99, descripcion : 'No se pudo modificar el archivo de productos'}
+            throw {descripcion : 'No se pudo eliminar el producto'}
         }
     }
 }

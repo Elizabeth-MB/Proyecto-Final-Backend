@@ -1,9 +1,10 @@
 const fs = require('fs')
 
-// Trabajando con persistencia en archivos
-const pathToFile = '../data/products.json'
+// // Trabajando con persistencia en archivos
+// const pathToFile = '../data/products.json'
 
 class CarritoManager {
+    
     async getCarrito(){
         if(!fs.existsSync(pathToFile)){
             throw {error, descripción : 'El archivo carrito no existe' }

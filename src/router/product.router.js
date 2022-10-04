@@ -2,9 +2,10 @@ const express = require('express')
 
 const route = express.Router()
 
-const ProductManager = require('../controllers/product.manager')
+const ProductManager = require('../controllers/product.manager.js')
 
 const productManager = new ProductManager('src/data/products.json')
+
 const admin = true
 
 const isAdmin = (req, res, next) => {
@@ -13,14 +14,14 @@ const isAdmin = (req, res, next) => {
         next()
     }
     else{
-        res.send({error: -1, descripcion: 'Usuario no autorizado'})
+        res.send({descripcion: 'Usuario no autorizado'})
     }
 }
 
 // GET: '/:id?' - Permite listar todos los productos disponibles o un producto por su id (Disponible para usuarios y administradores)
 route.get('/', async (req, res) => {
     try{
-        res.send(await productManager.getProducts())
+        res.send(await productManager.getAllProducts())
     }
     catch (error){
         res.send(error)
@@ -28,6 +29,8 @@ route.get('/', async (req, res) => {
 })
 
 route.get('/:id', async (req, res) => {
+    let id = parseInt(req.params.id)
+    req.id = id
     try{
         res.send(await productManager.getProduct(req.id))
     }
@@ -48,6 +51,10 @@ route.post('/', isAdmin, async (req, res) => {
 
 // PUT: '/:id' - Actualiza un producto por su id (Disponible para administradores)
 route.put('/:id', isAdmin, async (req, res) => {
+
+    let id = parseInt(req.params.id)
+    req.id = id
+
     try{
         res.send(await productManager.updateProduct(req.id, req.body))
     }
@@ -58,6 +65,10 @@ route.put('/:id', isAdmin, async (req, res) => {
 
 // DELETE: '/:id' - Borra un producto por su id (Disponible para administradores)
 route.delete('/:id', isAdmin, async (req, res) => {
+
+    let id = parseInt(req.params.id)
+    req.id = id
+
     try{
         res.send(await productManager.deleteProduct(req.id))
     }

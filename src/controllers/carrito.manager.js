@@ -1,5 +1,4 @@
 import fs from 'fs'
-// const fs = require('fs')
 
 // Trabajando con persistencia en archivos
 const pathToFile = '../data/products.json'

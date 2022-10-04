@@ -1,5 +1,4 @@
-import { fs } from 'fs'
-// const fs = require('fs')
+const fs = require('fs')
 
 // Trabajando con persistencia en archivos
 const pathToFile = '../data/products.json'
@@ -7,122 +6,94 @@ const pathToFile = '../data/products.json'
 class ProductManager {
     
     // Permite listar todos los productos disponibles (Disponible para usuarios y administradores)
-    getAll = async () => {
-        let products = []
-        try {
-            if (fs.existsSync(pathToFile)) {
-                let data = await fs.promises.readFile(pathToFile, 'utf-8')
-                products = JSON.parse(data)
-            }
-            return products
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
-        }
+    if(!fs.existsSync(pathToFile)){
+        throw { error : -3, descripcion : 'El archivo de productos no existe' }
+    }
+
+    try {
+        return JSON.parse(await fs.promises.readFile(this.path, 'utf-8'))
+    } 
+    catch {
+        throw { error : -98, descripcion : 'Error al leer el archivo de productos' }
     }
 
     // Permite listar un producto por su ID (Disponible para usuarios y administradores)
-    getById = async (id) => {
-        try {
+    async getProduct(id){
+        const products = await this.getProducts()
 
-            if (!id) return { status: "error", message: "id required" };
-            if (fs.existsSync(pathToFile)) {
-                let data = await fs.promises.readFile(pathToFile, "utf-8");
-                let products = JSON.parse(data);
-                let product = products.find((product) => product.id === id);
-                if (product) return { status: "success", message: product };
-                return { status: "error", message: "product not found" };
-            } else {
-                return { status: "error", message: err.message };
-            }
-
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+        const product = products.find(p => p.id === id)
+        if(product){
+            return product
         }
+
+        throw { error : -4, descripcion : `No existe el producto de id ${id}` }
     }
 
     // POST: '/' - Permite incorporar productos al listado (Disponible para administradores)
-    create = async (product) => {
-        try {
-            if (fs.existsSync(pathToFile)) {
+    async createProduct(p){
+        let products = []
+        let newProd
 
-                let data = await fs.promises.readFile(pathToFile, "utf-8");
-                let products = JSON.parse(data);
-                let id = products[products.length - 1].id + 1;
-                product.id = id;
-                products.push(product);
-                await fs.promises.writeFile(
-                    pathToFile,
-                    JSON.stringify(products, null, 2)
-                );
-                return {
-                    status: "success",
-                    message: `Product added with id ${product.id}`,
-                };
-            } else {
-                product.id = 1;
-                // Pasamos el producto como array
-                await fs.promises.writeFile(
-                    pathToFile,
-                    JSON.stringify([product], null, 2)
-                );
-                return {
-                    status: "success",
-                    message: `Product Added with id ${product.id}`,
-                };
+        if(fs.existsSync(this.path)){
+            products = await this.getProducts()
+                
+            if(products.length > 0)
+            {
+                newProd = { id : (products[products.length - 1].id + 1), timestamp : Date.now(), ...p}
             }
-        } catch (err) {
-            return { status: "error", message: err.message };
+            else {
+                newProd = { id : 1, timestamp : Date.now(), ...p }
+            }
+        }
+        else{
+            newProd = { id : 1, timestamp : Date.now(), ...p }
+        }
+
+        try {
+            await fs.promises.writeFile(this.path, JSON.stringify([...products, newProd], null, 2))    
+            return newProd
+        }
+        catch {
+            throw {error : -100, descripcion : 'No se pudo crear el archivo de productos'}
         }
     }
 
     // PUT: '/:id' - Actualiza un producto por su id (disponible para administradores)
-    update = (id, product) => {
-        try {
+    async updateProduct(id, p){
+        const products = await this.getProducts()
+        const index = products.findIndex(p => p.id === id)
 
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+        if(index === -1){
+            throw { error : -4, descripcion : `No existe el producto de id ${id}` }
+        }
+
+        products[index] = {...products[index], ...p}
+        try{
+            await fs.promises.writeFile(this.path, JSON.stringify([...products], null, 2))    
+            return products[index]
+        }
+        catch {
+            throw {error : -99, descripcion : 'No se pudo modificar el archivo de productos'}
         }
     }
 
     // DELETE: '/:id' - Borra un producto por su id (disponible para administradores)
-    delete = async (id) => {
-        try {
+    async deleteProduct(id){
+        const products = await this.getProducts()
 
-            if (!id) return { status: "error", message: "id required" };
-            if (fs.existsSync(pathToFile)) {
-                let data = await fs.promises.readFile(pathToFile, "utf-8");
-                let products = JSON.parse(data);
-                let newProducts = products.filter((product) => product.id !== id);
+        const index = products.findIndex(p => p.id === id)
+        if(index === -1){
+            throw { error : -4, descripcion : `No existe el producto de id ${id}` }
+        }
 
-                await fs.promises.writeFile(
-                    pathToFile,
-                    JSON.stringify(newProducts, null, 2)
-                );
-                return {
-                    status: "success",
-                    message: "Product deleted",
-                };
-            } else {
-                return { status: "error", message: err.message };
-            }
-
-        } catch (err) {
-            return {
-                status: "error",
-                message: err.message
-            }
+        try{
+            await fs.promises.writeFile(this.path, JSON.stringify(products.filter(p => p.id !== id), null, 2))    
+            return products[index]
+        }
+        catch {
+            throw {error : -99, descripcion : 'No se pudo modificar el archivo de productos'}
         }
     }
 }
 
-export default ProductManager
-// module.exports = ProductManager
+module.exports = ProductManager

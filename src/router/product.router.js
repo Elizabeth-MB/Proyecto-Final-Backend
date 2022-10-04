@@ -1,27 +1,68 @@
-import express from 'express'
-// const express = require('express')
+const express = require('express')
+
 const router = express.Router()
 
+const ProductManager = require('../controllers/product.manager')
+
+const productManager = new ProductManager('src/data/products.json')
+const admin = true
+
+const isAdmin = (req, res, next) => {
+    if(admin)
+    {
+        next()
+    }
+    else{
+        res.send({error: -1, descripcion: 'Usuario no autorizado'})
+    }
+}
+
 // GET: '/:id?' - Permite listar todos los productos disponibles o un producto por su id (Disponible para usuarios y administradores)
-router.get('/', (req, res) => {
-    res.send({status: 200, message: 'Hello GET ALL'})
+route.get('/', async (req, res) => {
+    try{
+        res.send(await productManager.getProducts())
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
-router.get('/:id', (req, res) => {
-    res.send({status: 200, message: 'Hello GET By Id'})
+route.get('/:id', async (req, res) => {
+    try{
+        res.send(await productManager.getProduct(req.id))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
 // POST: '/' Para incorporar productos al listado (Disponible para administradores)
-router.post('/', (req, res) => {
-    res.send({status: 200, message: 'Hello POST'})
+route.post('/', isAdmin, async (req, res) => {
+    try{
+        res.send(await productManager.createProduct(req.body))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
 // PUT: '/:id' - Actualiza un producto por su id (Disponible para administradores)
-router.put('/:id', (req, res) => {
-    res.send({status: 200, message: 'Hello PUT'})
+route.put('/:id', isAdmin, async (req, res) => {
+    try{
+        res.send(await productManager.updateProduct(req.id, req.body))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
 // DELETE: '/:id' - Borra un producto por su id (Disponible para administradores)
-router.delete('/:id', (req, res) => {
-    res.send({status: 200, message: 'Hello DELETE'})
+route.delete('/:id', isAdmin, async (req, res) => {
+    try{
+        res.send(await productManager.deleteProduct(req.id))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
+module.exports = route

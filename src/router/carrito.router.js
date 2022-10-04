@@ -1,29 +1,57 @@
-import express from 'express'
+const express = require('express')
 
 // const express = require('express')
 const router = express.Router()
+const CarritoManager = require('../controllers/carrito.manager')
+
+const carritoManager = new CarritoManager('src/data/carritos.json')
 
 // POST: '/' Crea un carrito y devuelve su id
-router.post('/', (req, res) => {
-    res.send({status: 200, message: 'Hello POST'})
+route.post('/', async (req, res) => {
+    try{
+        res.send(await carritoManager.createCarrito())
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
 // DELETE: '/:id' - Vacía un carrito y lo elimina
-router.delete('/:id', (req, res) => {
-    res.send({status: 200, message: 'Hello DELETE'})
+route.delete('/:id', async (req, res) => {
+    try{
+        res.send(await carritoManager.deleteCarrito(req.carritoId))
+    }
+    catch (error){
+        res.send(error)
+    }
+})
+
+route.delete('/:id/productos/:id_prod', async (req, res) => {
+    try{
+        res.send(await carritoManager.deleteProduct(req.carritoId, req.productId))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
 // GET: '/:id/productos' - Permite listar todos los productos guardados en el carrito
-router.get('/:id/productos', (req, res) => {
-    res.send({status: 200, message: 'Hello GET ALL'})
+route.get('/:id/productos', async (req, res) => {
+    try{
+        res.send(await carritoManager.getCarritoProductos(req.carritoId))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
-router.get('/:id', (req, res) => {
-    res.send({status: 200, message: 'Hello GET By Id'})
+route.post('/:id/productos', async (req, res) => {
+    try{
+        res.send(await cm.addProduct(req.carritoId, req.body))
+    }
+    catch (error){
+        res.send(error)
+    }
 })
 
-
-// PUT: '/:id' - Actualiza un producto por su id (Disponible para administradores)
-router.put('/:id', (req, res) => {
-    res.send({status: 200, message: 'Hello PUT'})
-})
+module.exports = route
